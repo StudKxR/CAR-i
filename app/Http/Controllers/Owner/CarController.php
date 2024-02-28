@@ -7,6 +7,7 @@ use App\Models\RentalCar;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\GeocodingService;
 
 class CarController extends Controller
 {
@@ -23,11 +24,11 @@ class CarController extends Controller
                 ->first();
 
             if ($upcomingService) {
-                // $carName = $car->name; 
-                // $carPlate = $car->plate; // You may adjust this based on your actual car model structure
-                // $maintenanceDate = Carbon::parse($upcomingService->service_date)->format('Y-m-d');
-                // $notificationMessage = "Service appointment for {$carName}, {$carPlate} on {$maintenanceDate}!";
-                // notify()->warning($notificationMessage,'Upcoming appointment!');
+                $carName = $car->name; 
+                $carPlate = $car->plate; // You may adjust this based on your actual car model structure
+                $maintenanceDate = Carbon::parse($upcomingService->service_date)->format('Y-m-d');
+                $notificationMessage = "Service appointment for {$carName}, {$carPlate} on {$maintenanceDate}!";
+                notify()->warning($notificationMessage,'Upcoming appointment!');
 
                 $car->update(['status' => 'Not available']);
                 
@@ -35,6 +36,12 @@ class CarController extends Controller
                 // Check if the maintenance date has passed
                 // If so, update car status to "Available"
                 $car->update(['status' => 'Available']);
+            }
+
+            if ($car->packages->isEmpty()) {
+                $notificationMessage = "There are cars that has no package, please add one to change car status to available.";
+                notify()->warning($notificationMessage,'Car package is missing');
+                $car->update(['status' => 'Not available']);
             }
         }
 
@@ -56,53 +63,59 @@ class CarController extends Controller
     {
         return view('owner.car.create');
     }
+
     public function store(Request $request)
-{
-    
-    $request->validate([
-        'name' => 'required',
-        'plate' => 'required',
-        'category' => 'required',
-        'mode' => 'required',
-        'seats' => 'required',
-        'status' => 'required',
-        'aircond' => 'required',
-        'pickup' => 'required',
-        'luggage' => 'required',
-        'price' => 'required',
-        'images' => 'required',
-        'mileage' => 'required',
-        'date' => 'required',
-    ]);
+    {
+        
+        $request->validate([
+            'name' => 'required',
+            'plate' => 'required|unique:car',
+            'category' => 'required',
+            'mode' => 'required',
+            'seats' => 'required',
+            'status' => 'required',
+            'aircond' => 'required',
+            'pickup' => 'required',
+            'luggage' => 'required',
+            'price' => 'required',
+            'images' => 'required',
+            'mileage' => 'required',
+            'date' => 'required',
+        ]);
 
-    $image = null; // Initialize the $image variable
+        $geocodedLocation = GeocodingService::geocode($request->pickup);
 
-    if ($request->hasFile('images')) {
-        $imagePath = $request->file('images')->store('public/images');
-        $image = basename($imagePath);
+        // dd($geocodedLocation['longitude']);
+        $image = null; // Initialize the $image variable
+
+        if ($request->hasFile('images')) {
+            $imagePath = $request->file('images')->store('public/images');
+            $image = basename($imagePath);
+        }
+        
+        // Create the car record with the image filename
+        RentalCar::create([
+            'name' => $request->name,
+            'plate' => $request->plate,
+            'category' => $request->category,
+            'mode' => $request->mode,
+            'seats' => $request->seats,
+            'status' => $request->status,
+            'aircond' => $request->aircond,
+            'pickup' => $request->pickup,
+            'latitude' => $geocodedLocation['latitude'],
+            'longitude' => $geocodedLocation['longitude'],
+            'luggage' => $request->luggage,
+            'rental_price' => $request->price,
+            'user_id' => auth()->user()->id,
+            'images' => $image, 
+            'mileage' => $request->mileage,
+            'last_maintenance' => $request->date,
+        ]);
+
+        notify()->success('New car has been added!');
+        return redirect()->route('car.index');
     }
-    
-    // Create the car record with the image filename
-    RentalCar::create([
-        'name' => $request->name,
-        'plate' => $request->plate,
-        'category' => $request->category,
-        'mode' => $request->mode,
-        'seats' => $request->seats,
-        'status' => $request->status,
-        'aircond' => $request->aircond,
-        'pickup' => $request->pickup,
-        'luggage' => $request->luggage,
-        'rental_price' => $request->price,
-        'user_id' => auth()->user()->id,
-        'images' => $image, 
-        'mileage' => $request->mileage,
-        'last_maintenance' => $request->date,
-    ]);
-
-    notify()->success('New car has been added!');
-    return redirect()->route('car.index');
-}
 
     public function edit(RentalCar $car)
     {
@@ -111,20 +124,34 @@ class CarController extends Controller
 
     public function update(Request $request, RentalCar $car)
     {
-        
-       
-        $car->update([
-            'name' => $request->name,
-            'plate' => $request->plate,
-            'category' => $request->category,
-            'status' => $request->status,
-            'color' => $request->color,
-        ]);  
+        $image = null; // Initialize the $image variable
         if ($request->hasFile('images')) {
             // Store the new image
             $imagePath = $request->file('images')->store('public/images');
             $car->images = basename($imagePath);
         }
+       
+        $geocodedLocation = GeocodingService::geocode($request->pickup);
+        $car->update([
+            'name' => $request->name,
+            'plate' => $request->plate,
+            'category' => $request->category,
+            'mode' => $request->mode,
+            'seats' => $request->seats,
+            'status' => $request->status,
+            'aircond' => $request->aircond,
+            'pickup' => $request->pickup,
+            'latitude' => $geocodedLocation['latitude'],
+            'longitude' => $geocodedLocation['longitude'],
+            'luggage' => $request->luggage,
+            'rental_price' => $request->price,
+            'user_id' => auth()->user()->id,
+            'images' => $image, 
+            'mileage' => $request->mileage,
+            'last_maintenance' => $request->date,
+        ]);  
+        
+       
         $car->save();
         notify()->success('Car has been updated!');
         return redirect()->route('car.index');

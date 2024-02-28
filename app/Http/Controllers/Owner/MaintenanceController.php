@@ -35,16 +35,19 @@ class MaintenanceController extends Controller
                 ->whereDate('service_date', '<=', now()->addDays(3))
                 ->first();
 
-            if ($upcomingService) {
+            if ($upcomingService && $upcomingService->status !== 'Done') {
                 $carName = $car->name; 
                 $carPlate = $car->plate; // You may adjust this based on your actual car model structure
                 $maintenanceDate = Carbon::parse($upcomingService->service_date)->format('Y-m-d');
                 $notificationMessage = "Service appointment for {$carName}, {$carPlate} on {$maintenanceDate}!";
                 notify()->warning($notificationMessage,'Upcoming appointment!');
-
-                
             }
         }
+
+        if ($services->isEmpty()) {
+            // In your controller
+            notify()->warning('Please add a service center','Missing service center!');    
+        }        // }
         return view('owner.maintenance.index',compact('cars','bookings','maintenances','services'));
     }
 
@@ -64,6 +67,7 @@ class MaintenanceController extends Controller
         $services = Service::where('user_id', $user->id)->get();
         return view('owner.maintenance.create',compact('cars','services'));
     }
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -104,16 +108,16 @@ class MaintenanceController extends Controller
             'maintenance_id' => $newMaintenanceId,
         ];
 
-        // Mail::send('owner.maintenance.emails.AddMaintenance',$data,
-        // function($message) use ($email, $name,$service_email,$service){
-        //     $message->from($email,$name)
-        //     ->to($service_email,$service)
-        //     ->subject('Maintenance Schedule Created');
-        // });
+        Mail::send('owner.maintenance.emails.AddMaintenance',$data,
+        function($message) use ($email, $name,$service_email,$service){
+            $message->from($email,$name)
+            ->to($service_email,$service)
+            ->subject('Maintenance Schedule Created');
+        });
 
-        return redirect()->route('maintenance.index')
-                            ->with('success', 'Email sent!');
-    }
+        notify()->success('Email sent!');
+        return redirect()->route('maintenance.index');
+        }
 
     public function next(Request $request)
     {
@@ -127,9 +131,10 @@ class MaintenanceController extends Controller
         return view('owner.maintenance.details',compact('car','type','service','date'));
     }
 
-    public function pdf()
+    public function pdf(Maintenance $maintenance)
     {
-        $pdf = PDF::loadView('owner.maintenance.pdf.users');
+        $pdf = PDF::loadView('owner.maintenance.pdf.users', compact('maintenance'));
+        
         return $pdf->stream();
     }
 
@@ -150,23 +155,23 @@ class MaintenanceController extends Controller
 
         // dd($data);
 
-        Mail::send('owner.maintenance.emails.thankyou',$data,
-        function($message) use ($email, $name,$service_email,$service){
-            $message->from($email,$name)
-            ->to($service_email,$service)
-            ->subject('Maintenance Finished');
-        });
+        // Mail::send('owner.maintenance.emails.thankyou',$data,
+        // function($message) use ($email, $name,$service_email,$service){
+        //     $message->from($email,$name)
+        //     ->to($service_email,$service)
+        //     ->subject('Maintenance Finished');
+        // });
 
 
         // Access the related car and update the last_maintenance_date
-        // $maintenance->cars->update([
-        //     'time_interval' => $maintenance->service_date,
-        // ]);
+        $maintenance->cars->update([
+            'last_maintenance' => $maintenance->service_date,
+        ]);
 
-        // // Mark the maintenance as done
-        // $maintenance->update([
-        //     'status' => 'Done',
-        // ]);
+        // Mark the maintenance as done
+        $maintenance->update([
+            'status' => 'Done',
+        ]);
 
         notify()->success('Maintenance Finished!');
         return redirect()->back();

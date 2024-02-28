@@ -1,8 +1,8 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\ToyyibpayController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\MaintenanceController;
 use App\Http\Controllers\Customer\CarController;
 use Illuminate\Support\Facades\Route;
@@ -39,80 +39,8 @@ Route::get('/telegram-callback', [TelegramController::class, 'TelegramCallback']
 
 // Route::get('/app',[UserController::class,'index'])->name('customer.home');
 
-Route::get('/dashboard', function () {
-    if(Auth::id())
-    {
-        $roles=Auth()->user()->roles;
+Route::middleware(['auth', 'verified'])->get('/dashboard',[HomeController::class, 'index'] )->name('dashboard');
 
-        if($roles=='2')
-        {
-            $user_id = Auth()->user()->id;
-            $carCount = RentalCar::where('status', 'Available')->count();
-            $bookingCount = Booking::where('user_id', $user_id)->count();
-            $bookings = Booking::where('user_id', $user_id)->get();
-            return view('customer.home',compact('carCount','bookingCount','bookings'));
-        }
-        else if($roles == '1') {
-
-            $user_id = Auth()->user()->id;
-
-            $bookingsPerMonth = Booking::where('user_id', $user_id)
-                ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-                ->groupBy('month')
-                ->get();
-
-
-            $carCount = RentalCar::where('user_id', $user_id)->count();
-            $cars = RentalCar::where('user_id', $user_id)->get();
-            
-            $bookingCount = Booking::whereHas('cars', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            })->count();
-
-            $bookingsPerMonth = Booking::whereHas('cars', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            })->selectRaw('MONTH(pickup_date) as month, COUNT(*) as count')
-            ->groupBy('month')
-            ->get();
-            
-            // Extracting data for JavaScript
-            $months = $bookingsPerMonth->pluck('month')->toArray();
-            $counts = $bookingsPerMonth->pluck('count')->toArray();
-
-            // dd($bookingsPerMonth);
-
-
-        
-            // Compact an array to store the count of bookings for each car
-            $bookingsCountByCar = [];
-        
-            foreach ($cars as $car) {
-                // Get the count of bookings for each car
-                $bookingsCountByCar[$car->id] = $car->bookings()->count();
-        
-                // Check for upcoming service
-                $upcomingService = $car->maintenance()->whereDate('service_date', '>=', now())
-                    ->whereDate('service_date', '<=', now()->addDays(3))
-                    ->first();
-        
-                if ($upcomingService) {
-                    $carName = $car->name;
-                    $carPlate = $car->plate;
-                    $maintenanceDate = Carbon::parse($upcomingService->service_date)->format('Y-m-d');
-                    $notificationMessage = "Service appointment for {$carName}, {$carPlate} on {$maintenanceDate}!";
-                    notify()->warning($notificationMessage, 'Upcoming appointment!');
-                }
-            }
-        
-            return view('owner.home', compact('cars', 'carCount', 'bookingsCountByCar','bookingCount','months', 'counts'));
-        }
-        
-        else
-        {
-            return redirect()->back();
-        }
-    }
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 
 
@@ -129,7 +57,7 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('settings','App\Http\Controllers\SettingController');
 
-Route::get('toyyibpay',[ToyyibpayController::class, 'createBill'])->name('toyyibpay-create');
+Route::get('toyyibpay/{bookingId}/{totalPrice}',[ToyyibpayController::class, 'createBill'])->name('toyyibpay-create');
 Route::get('toyyibpay-status',[ToyyibpayController::class, 'paymentStatus'])->name('toyyibpay-status');
 Route::post('toyyibpay-callback',[ToyyibpayController::class, 'callback'])->name('toyyibpay-callback');
 
@@ -147,15 +75,16 @@ Route::resource('package','App\Http\Controllers\Owner\PackageController');
 
 
 Route::get('package/{id}/create', 'App\Http\Controllers\Owner\PackageController@create')->name('package.create');
-Route::put('package/{id}', 'App\Http\Controllers\Owner\PackageController@store')->name('package.store');
+Route::post('package/{id}', 'App\Http\Controllers\Owner\PackageController@store')->name('package.store');
 
 Route::put('package/{id}', 'App\Http\Controllers\Owner\PackageController@update')->name('package.update');
 
 Route::put('booking2/approve/{booking}', 'App\Http\Controllers\Owner\BookingController@approve')->name('booking2.approve');
+Route::post('/stop-tracking/{booking}', 'App\Http\Controllers\Owner\BookingController@stopTracking')->name('stop-tracking');
 
 Route::get('booking2/location/{booking}', 'App\Http\Controllers\Owner\BookingController@location')->name('booking2.location');
 Route::post('/maintenance/details', 'App\Http\Controllers\Owner\MaintenanceController@next')->name('maintenance.details');
-Route::get('/export_pdf', 'App\Http\Controllers\Owner\MaintenanceController@pdf')->name('export_pdf');
+Route::get('/export_pdf/{maintenance}', 'App\Http\Controllers\Owner\MaintenanceController@pdf')->name('export_pdf');
 
 
 // Show the form
@@ -194,6 +123,10 @@ Route::resource('booking','App\Http\Controllers\Customer\BookingController');
 Route::get('/booking/show/{car}/{pickupDateTime}/{dropoffDateTime}/{pickupLocation}/{dayDifference}', 'App\Http\Controllers\Customer\BookingController@display')->name('booking.display');
 
 Route::post('/update-location/{booking}', 'App\Http\Controllers\Customer\BookingController@updateLocation')->name('update.location');
+Route::post('/stop-rental/{booking}', 'App\Http\Controllers\Customer\BookingController@stopRental')->name('stop-rental');
+Route::post('/finish-rental/{booking}', 'App\Http\Controllers\Customer\BookingController@finishRental')->name('finish-rental');
+Route::put('/review/{booking}', 'App\Http\Controllers\Customer\BookingController@review')->name('booking.review');
+
 
 Route::get('/geolocation','App\Http\Controllers\Customer\BookingController@updateLocation');   
 

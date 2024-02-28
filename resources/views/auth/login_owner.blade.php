@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-auth-card-2>
         <x-slot name="logo">
-           <span class="text-sm text-gray">New to CAR-i?&ensp;<a href="{{ route('register_owner') }}" class="text-sm text-[#FE0000] hover:underline">Register Here</a></span>
+           <!-- <span class="text-sm text-gray">New to CAR-i?&ensp;<a href="{{ route('register_owner') }}" class="text-sm text-[#FE0000] hover:underline">Register Here</a></span> -->
            <br>
         </x-slot>
 
@@ -32,16 +32,16 @@
             </div>
 
             <!-- Remember Me -->
-            <div class="block mt-4">
+            <!-- <div class="block mt-4">
                 <label for="remember_me" class="inline-flex items-center">
                     <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="remember">
                     <span class="ml-2 text-sm text-gray-600 ">{{ __('Remember me') }}</span>
                 </label>
-            </div>
+            </div> -->
 
             <div class="flex items-center justify-end my-4">
                 <a class="underline text-sm text-[#FE0000] hover:text-gray-600 pr-4" href="javascript:history.back()">
-                    {{ __('Go Back') }}
+                    {{ __('Back') }}
                 </a>
                 @if (Route::has('password.request'))
                     <a class="underline text-sm text-[#FE0000] hover:text-gray-600 " href="{{ route('password.request') }}">

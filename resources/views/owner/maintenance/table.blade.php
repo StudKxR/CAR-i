@@ -98,6 +98,7 @@
                             <th class="border-b font-bold p-4 pl-8 pt-0 pb-3 text-slate-800 text-left">Car</th>
                             <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800 text-left">Service Centre</th>
                             <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800  text-left">Maintenance Date</th>
+                            <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800  text-left">Status</th>
                             <th class="border-b font-bold p-4 pr-8 pt-0 pb-3 text-slate-800 ">Action</th>
                         </tr>
                     </thead>
@@ -110,6 +111,14 @@
                                 {!! $maintenance->service_date ? $maintenance->service_date : '<span class="text-yellow-400">Reply Pending</span>' !!}
                             </td>
                             <td class="p-4 pr-8">
+                                @if ($maintenance->status == 'Progressing')
+                                    <span class="font-bold text-yellow-400 rounded-lg">{{$maintenance->status}}</span>
+                                @elseif ($maintenance->status == 'Done')
+                                    <span class="font-bold text-green-600 rounded-lg">{{$maintenance->status}}</span>
+                                @else
+                                    <span class="font-bold  rounded-lg">{{$maintenance->status}}</span>
+                                @endif</td>
+                            <td class="p-4 pr-8">
                                     <div class="flex justify-around items-center space-x-2">
                                         <a href="{{ route('maintenance.show',$maintenance->id) }}" class="bg-sky-300 text-blue-600 font-medium rounded-md p-1 hover:bg-sky-200">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -117,15 +126,16 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                         </a>
-                                        <form action="{{ route('maintenance.destroy',$maintenance->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                                </svg></button>
-                                        </form>
+                                        
+                                        <form id="deleteForm" action="{{ route('maintenance.destroy',$maintenance->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200 m-auto block" onclick="confirmDelete()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                     </div>
                                 </div>
                             </td>
@@ -169,21 +179,64 @@
                             <td class="p-4 pr-8">{{$service->location}}</td>
                             <td class="p-4 pr-8">
                                     <div class="flex justify-around items-center space-x-2">
-                                        <a href="{{ route('service.show',$service->id) }}" class="bg-sky-300 text-blue-600 font-medium rounded-md p-1 hover:bg-sky-200">
+                                 
+                                        <a class="bg-yellow-300 text-yellow-600 font-medium rounded-md p-1 hover:bg-yellow-200" href="#" onclick="openServiceCenterUpdateForm()">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                             </svg>
-                                        </a>                            
-                                        <form action="{{ route('service.destroy',$service->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                                </svg></button>
-                                        </form>
+                                        </a>
+                                        <!-- Service Center Update Form Popup -->
+                                        <div class="fixed inset-0 bg-black bg-opacity-50 hidden transition-opacity duration-300" id="serviceCenterUpdateForm" onclick="closeServiceCenterUpdateForm()">
+                                            <div class="flex justify-center items-center h-screen">
+                                                <div class="bg-white p-8 rounded-lg w-96 transition-transform duration-300 transform scale-0" id="serviceCenterUpdateFormContent" onclick="stopUpdatePropagation(event)">
+                                                    <!-- Your Service Center Form Goes Here -->
+                                                    <form method="POST" action="{{ route('service.update',$service->id) }}" id="myUpdateForm">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <h2 class="text-2xl font-medium text-black mb-4">Update Service Center</h2> <!-- Title added -->
+
+                                                        <!-- Name Field -->
+                                                        <div class="mb-4">
+                                                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                                            <input type="text" id="name" name="name" class="mt-1 p-2 w-full border rounded-md" value="{{$service->name}}">
+                                                        </div>
+
+                                                        <!-- Email Field -->
+                                                        <div class="mb-4">
+                                                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                                            <input type="email" id="email" name="email" class="mt-1 p-2 w-full border rounded-md" value="{{$service->email}}">
+                                                        </div>
+
+                                                        <!-- Contact Field -->
+                                                        <div class="mb-4">
+                                                            <label for="contact" class="block text-sm font-medium text-gray-700">Contact</label>
+                                                            <input type="text" id="contact" name="contact" class="mt-1 p-2 w-full border rounded-md" value="{{$service->phone}}">
+                                                        </div>
+
+                                                        <!-- Location Field -->
+                                                        <div class="mb-4">
+                                                            <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                                                            <input type="text" id="location" name="location" class="mt-1 p-2 w-full border rounded-md" list="locationSuggestions" value="{{$service->location}}">
+                                                            <datalist id="locationSuggestions"></datalist>
+                                                        </div>
+                                                        <div class="mt-6 flex items-center justify-end gap-x-6">
+                                                            <button type="button" class="text-sm font-light leading-6 text-gray-900 hover:underline" onclick="clearForm()">Clear</button>
+                                                            <button type="submit" class="bg-[#FE0000] text-white text-sm font-light p-2 rounded-md">Submit</button>
+                                                        </div>
+                                                        
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>       
+                                        <form id="deleteService" action="{{ route('service.destroy',$service->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200 m-auto block" onclick="confirmDelete()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                     </div>
                                 </div>
                             </td>
@@ -208,7 +261,21 @@
         document.getElementById('myForm').reset();
     }
 
+    function confirmDelete() {
+        // Show the confirmation dialog
+        if (confirm('Are you sure you want to delete this schedule?')) {
+            // If confirmed, submit the form
+            document.getElementById('deleteForm').submit();
+        }
+    }
 
+    function confirmDeleteService() {
+        // Show the confirmation dialog
+        if (confirm('Are you sure you want to delete this service center?')) {
+            // If confirmed, submit the form
+            document.getElementById('deleteService').submit();
+        }
+    }
 
 
 
@@ -298,6 +365,31 @@
 
 
 
+
+
+
+
+        function openServiceCenterUpdateForm() {
+        var formContainer = document.getElementById('serviceCenterUpdateForm');
+        var formContent = document.getElementById('serviceCenterUpdateFormContent');
+        formContainer.classList.remove('hidden');
+        formContent.classList.remove('scale-0');
+    }
+
+    function closeServiceCenterUpdateForm() {
+        var formContainer = document.getElementById('serviceCenterUpdateForm');
+        var formContent = document.getElementById('serviceCenterUpdateFormContent');
+        formContainer.classList.add('hidden');
+        formContent.classList.add('scale-0');
+    }
+
+    function stopUpdatePropagation(event) {
+        event.stopPropagation();
+    }
+
+    function clearForm() {
+        document.getElementById('myUpdateForm').reset();
+    }
 
         //////////////////////           LOCATION                 ////////////////////////////////
 

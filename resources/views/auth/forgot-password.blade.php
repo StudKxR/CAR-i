@@ -27,6 +27,9 @@
             </div>
 
             <div class="flex items-center justify-end mt-4">
+                <a class="underline text-sm text-[#FE0000] hover:text-gray-600 pr-4" href="javascript:history.back()">
+                    {{ __('Back') }}
+                </a> 
                 <x-button>
                     {{ __('Email Password Reset Link') }}
                 </x-button>

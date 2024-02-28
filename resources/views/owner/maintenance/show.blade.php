@@ -38,7 +38,7 @@
                             </div>
                             <div class=" m-0">
                                 <p class="text-l font-bold">Last maintenance:</p>
-                                <p>{{$maintenances->cars->time_interval}}</p>
+                                <p>{{$maintenances->cars->last_maintenance}}</p>
                             </div>    
                         </div>
                     </div>
@@ -54,7 +54,15 @@
                             </div>
                             <div>
                                 <p class="font-semibold">Maintenance Date: <br> <span class="font-normal">{!! $maintenances->service_date ? $maintenances->service_date : '<span class="text-yellow-400">Reply Pending</span>' !!}</span></p>
-                                <p class="font-semibold">Maintenance Status: <br> <span class="font-normal">{{$maintenances->status}}</p>
+                                <p class="font-semibold">Maintenance Status: <br>   
+                                @if ($maintenances->status == 'Progressing')
+                                    <span class="font-bold text-yellow-400 rounded-lg">{{$maintenances->status}}</span>
+                                @elseif ($maintenances->status == 'Done')
+                                    <span class="font-bold text-green-600 rounded-lg">{{$maintenances->status}}</span>
+                                @else
+                                    <span class="font-bold  rounded-lg">{{$maintenances->status}}</span>
+                                @endif
+                                </p>
                             </div>
                         </div>
                 </div>
@@ -75,16 +83,18 @@
                             @method('PATCH')
                             <button type="submit" class="text-white w-full">
                                 <div class="flex  justify-center items-center rounded-md bg-green-500 p-2">
-                                    Mark as Done & send Thank you email
+                                    Mark as Done
                                 </div>
                             </button>
                         </form>
                     @endif
-                    <a href="{{route('export_pdf')}}" class="text-white ">
-                        <div class="flex justify-center items-center rounded-md bg-indigo-800 p-2 ">
-                            Display PDF
-                        </div>
-                    </a>
+                    @if($maintenances->status === 'Done')
+                        <a href="{{ route('export_pdf', ['maintenance' => $maintenances->id]) }}" target="_blank" class="text-white">
+                            <div class="flex justify-center items-center rounded-md bg-indigo-800 p-2">
+                                Display PDF
+                            </div>
+                        </a>
+                    @endif
                 </div>
             </div>            
         </div>

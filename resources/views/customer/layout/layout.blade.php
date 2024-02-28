@@ -7,6 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <title>CAR-i</title>
+    <link rel="icon" href="{{ asset('storage/images/favicon.ico') }}" type="image/x-icon">
+
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +53,7 @@
 
 <body class="">
     {{-- sidebar with nav links --}}
-    <nav class="py-4 px-10 bg-white shadow md:flex md:items-center md:justify-between  border-b border-[#FE0000] ">
+    <nav class="py-4 px-10 bg-white shadow md:flex md:items-center md:justify-between  border-b border-[#FE0000]">
         <div class="flex justify-between items-center ">
             <a href="{{route('dashboard')}}" class="text-xl text-[#FE0000] font-semibold cursor-pointer mx-4 my-6 md:my-0">CAR-i</a>    
             <span class="text-3xl cursor-pointer mx-2 md:hidden block">
@@ -77,9 +79,9 @@
                         x-transition:leave="transition origin-top-right ease-in duration-100"
                         x-transition:leave-start="opacity-100 transform scale-100 translate-x-0"
                         x-transition:leave-end="opacity-0 transform scale-90 translate-x-0"
-                        class="text-left absolute right-0">
+                        class="text-left absolute ">
                         <div class="flex-shrink">
-                            <div class="w-40 bg-white border drop-shadow-xl rounded-md">
+                            <div class="w-full bg-white border drop-shadow-xl rounded-md">
                                 <nav class="flex flex-col space-y-2 w-full py-4 px-4">
                                     <a href="{{ route('profile.edit') }}" class="w-full rounded-lg text-left">
                                         <div class="inline-flex items-center gap-2">
@@ -114,9 +116,13 @@
         @include('notify::components.notify')
         @yield('content')
         @foreach($bookings as $booking)
-        <div class="tracking flex flex-row w-full h-full bg-white "data-status= "{{ $booking->status}}" 
-        data-pickup-date="{{ $booking->pickup_date }}" data-dropoff-date="{{ $booking->dropoff_date }}" 
-        data-track-id="{{ $booking->id }}" latitude-value ="{{ $booking->latitude}}" longitude-value ="{{$booking->longitude}}" >        
+        <div class="tracking flex flex-row w-full h-full bg-white "
+        data-status= "{{ $booking->status}}" 
+        data-pickup-date="{{ $booking->pickup_date }}" 
+        data-dropoff-date="{{ $booking->dropoff_date }}" 
+        data-track-id="{{ $booking->id }}" 
+        latitude-value ="{{ $booking->latitude}}" 
+        longitude-value ="{{$booking->longitude}}" >        
             <form id="locationForm{{ $booking->id }}" method="POST" action="{{ route('update.location',$booking->id) }}">
                 @csrf
                 <input type="hidden" id="latitudeInput{{ $booking->id }}" name="latitude">
@@ -168,7 +174,7 @@
     function startTracking() {
         trackingInterval = setInterval(() => {
             navigator.geolocation.getCurrentPosition(getPosition);
-        }, 5000); // Update the position every 5 seconds
+        }, 30000); // Update the position every 30 seconds
     }
 
     function updatePosition(position) {
@@ -201,7 +207,7 @@
                 const req = document.getElementById('req'+ trackId);
                 const start = document.getElementById('start'+ trackId);
 
-                if (shouldStartTracking(pickupDate,dropoffDate) && status === 'Approved') {
+                if (shouldStartTracking(pickupDate,dropoffDate) && status === 'Approved' ) {
                     // Display the tracking modal for the clicked row
 
                     if ( !(latitude == 0.0 && longitude == 0.0) ) {

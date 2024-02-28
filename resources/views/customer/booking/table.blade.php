@@ -42,191 +42,81 @@
                             <span class="font-bold text-yellow-400 rounded-lg">{{$booking->status}}</span>
                         @elseif ($booking->status == 'Approved')
                             <span class="font-bold text-green-600 rounded-lg">{{$booking->status}}</span>
+                        @elseif ($booking->status == 'Payment made')
+                            <span class="font-bold text-blue-600 rounded-lg">{{$booking->status}}</span>
+                        @elseif ($booking->status == 'Finished')
+                            <span class="font-bold text-red-600 rounded-lg">{{$booking->status}}
+                            @if (empty($booking->review))
+                                <a data-booking-id="{{ $booking->id }}" class="bg-purple-300 text-purple-600 font-medium rounded-md p-1 hover:bg-purple-200 block flex justify-center cursor-pointer openModalButton">
+                                    Write a review
+                                </a>  
+                            @endif
+                            </span>
                         @else
-                            <span class="font-bold rounded-lg">{{$booking->status}}</span>
+                            <span class="font-bold text-red-600 rounded-lg">{{$booking->status}}</span>
                         @endif</td>
                         <td class="p-4 pr-8">
                             <div class="flex justify-around items-center space-x-2">
+                                
+                                @if($booking->status !== "Finished" && $booking->status !== "Canceled")  
                                 <form id="locationForm{{ $booking->id }}" method="POST" action="{{ route('update.location',$booking->id) }}">
                                     @csrf
                                     <input type="hidden" id="latitudeInput{{ $booking->id }}" name="latitude">
                                     <input type="hidden" id="longitudeInput{{ $booking->id }}"name="longitude">
                                 
-                                    <button class="show-track show-track-req bg-green-300 text-green-600 font-medium rounded-md p-1 hover:bg-green-200 m-auto block" 
-                                    data-status= "{{ $booking->status}}" data-pickup-date="{{ $booking->pickup_date }}" data-dropoff-date="{{ $booking->dropoff_date }}" data-track-id="{{ $booking->id }}"
-                                    latitude-value ="{{ $booking->latitude}}" longitude-value ="{{$booking->longitude}}" >
+                                    <button class="show-track  bg-green-300 text-green-600 font-medium rounded-md p-1 hover:bg-green-200 m-auto block" 
+                                        data-status= "{{ $booking->status}}" 
+                                        data-tracking= "{$booking->tracking}}"
+                                        data-pickup-date="{{ $booking->pickup_date }}" 
+                                        data-pickup-time="{{ $booking->pickup_time }}" 
+                                        data-dropoff-date="{{ $booking->dropoff_date }}" 
+                                        data-dropoff-time="{{ $booking->dropoff_time }}" 
+                                        data-track-id="{{ $booking->id }}"
+                                        latitude-value ="{{ $booking->latitude}}"
+                                        longitude-value ="{{$booking->longitude}}" >
+                                    @if($booking->tracking == "On")
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="animate-spin w-6 h-6 z-0">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg> 
+                                    @else
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
                                         </svg>
+                                    @endif
                                     </button>
                                     
                                 </form>
-                                    <a class="show-modal bg-sky-300 text-blue-600 font-medium rounded-md p-1 hover:bg-sky-200 m-auto cursor-pointer" data-modal-id="{{ $booking->id }}">
+                                @endif
+                                
+                                <a href="{{route('booking.show',$booking->id)}}" class="bg-sky-300 text-blue-600 font-medium rounded-md p-1 hover:bg-sky-200 block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </a>  
+                                @if($booking->tracking !== "On")  
+                                <a class="bg-yellow-300 text-yellow-600 font-medium rounded-md p-1 hover:bg-yellow-200 m-auto block"
+                                    href="{{route('booking.edit',$booking->id)}}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                    </svg>
+                                </a>
+                                
+                                <form id="deleteForm" action="{{ route('booking.destroy', $booking->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200 m-auto block" onclick="confirmDelete()">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                         </svg>
-                                    </a>    
-                                    <a class="bg-yellow-300 text-yellow-600 font-medium rounded-md p-1 hover:bg-yellow-200 m-auto block"
-                                        href="{{route('booking.edit',$booking->id)}}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                        </svg>
-                                    </a>
-                                    <form id="deleteForm" action="{{ route('booking.destroy', $booking->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200 m-auto block" onclick="confirmDelete()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                            </svg>
-                                        </button>
-                                    </form>
-
+                                    </button>
+                                </form>
+                                @endif
                             </div> 
                         </td>
                     </tr>
                     <div class="grid grid-rows-3">
-                        <div>
-                            <!-- show pop up details -->
-                            <div id="modal_{{ $booking->id }}" class="hidden top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-80">
-                                <div class="bg-white p-6 rounded-xl shadow-lg sm:w-2/3 md:w-1/2 lg:w-4/5 ">
-                                    <div class="p-4 flex flex-col bg-white rounded-lg shadow-xl mb-4 ">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
-                                            <img class="md:h-60 sm:h-20 object-scale-down rounded-t-xl" src="{{ asset('storage/images/' . $booking->cars->images) }}"alt="Car Image" />
-                                            <div class="col-span-3 grid grid-cols-2 h-1/3">
-
-
-                                                <div class="col-span-2 py-2">
-                                                    <h1 class="text-2xl font-bold truncate">{{$booking->cars->name}}</h1>
-                                                </div>
-
-
-                                                <div class="sm:col-span-2 flex md:gap-8 sm:gap-4 md:items-center">
-                                                    <div class="flex relative group items-center">
-                                                        <div class="flex gap-2 cursor-pointer rounded">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                                                            </svg>
-                                                        <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
-                                                            {{$booking->cars->seats}} adult passengers
-                                                        </div>
-                                                        {{$booking->cars->seats}}
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="flex relative group items-center">
-                                                        <div class="flex gap-2 cursor-pointer rounded">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12m6.894 5.785l-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864l-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495" />
-                                                            </svg>
-                                                        <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
-                                                            {{$booking->cars->mode}} transmission
-                                                        </div>
-                                                            @if ($booking->cars->mode === 'Manual')
-                                                                M
-                                                            @elseif ($booking->cars->mode === 'Automatic')
-                                                                A
-                                                            @else
-                                                                {{$booking->cars->mode}} <!-- Display the mode if it's neither Manual nor Automatic -->
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="flex relative group items-center">
-                                                        <div class="flex gap-2 cursor-pointer rounded">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                                            </svg>
-                                                        <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
-                                                            {{$booking->cars->luggage}} large bag(s)
-                                                        </div>
-                                                        {{$booking->cars->luggage}}
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div class="flex relative group items-center">
-                                                        <div class="flex gap-2 cursor-pointer rounded">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                                                            </svg>
-                                                        <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
-                                                            @if ($booking->cars->aircond === 'AC')
-                                                                AirCond available
-                                                            @elseif ($booking->cars->aircond === 'Heater')
-                                                                Heater available
-                                                            @else
-                                                                {{$booking->cars->aircond}} available <!-- Display the aircond value if it's neither AC nor Heater -->
-                                                            @endif
-                                                        </div>
-                                                            @if ($booking->cars->aircond === 'AC')
-                                                                AC
-                                                            @elseif ($booking->cars->aircond === 'Heater')
-                                                                H
-                                                            @else
-                                                                {{$booking->cars->aircond}} <!-- Display the aircond value if it's neither AC nor Heater -->
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-span-2 py-4 pb-2">
-                                                    <hr>
-                                                </div>
-
-                                                <div class="flex flex-col col-span-2">
-                                                    <div class="flex justify-center pb-2">
-                                                        <p class="text-xl font-semibold py-2">Payment Status: 
-                                                            @if ($booking->status == 'Pending')
-                                                            <span class="font-bold text-yellow-400 rounded-lg">{{$booking->status}}</span>
-                                                            @elseif ($booking->status == 'Approved')
-                                                                <span class="font-bold text-green-600 rounded-lg">{{$booking->status}}</span>
-                                                            @else
-                                                                <span class="font-bold rounded-lg">{{$booking->status}}</span>
-                                                            @endif
-                                                        </p>
-                                                    </div>
-                                                    
-
-                                                    <div class="flex justify-center pb-2">
-                                                        <a href="{{route('toyyibpay-create')}}" class="font-base p-2 bg-green-300 text-green-600 rounded-md shadow-md">Make Payment</a>
-                                                    </div>
-                                                    <div class="flex justify-between">
-                                                        <p class="text-xl font-semibold py-2">Pick-up & Drop-off</p>
-                                                        <p class="text-xl font-semibold py-2">Total Price</p>
-                                                    </div>
-
-                                                    <div class="flex justify-between bg-slate-100 border border-none rounded-md w-full py-2 px-3 ">
-                                                        <div>
-                                                            <p class="block text-gray-700 text-base font-light">Pickup Location: {{$booking->location}} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Date: {{ \Carbon\Carbon::parse($booking->pickupDateTime)->format('Y-m-d H:i') }} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Pickup Location: {{$booking->location}} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Date: {{ \Carbon\Carbon::parse($booking->dropoffDateTime)->format('Y-m-d H:i') }} </p>
-                                                        </div>
-
-                                                        <div>
-                                                            <p class="block text-gray-700 text-base font-light">Pickup Location: {{$booking->location}} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Date: {{ \Carbon\Carbon::parse($booking->pickupDateTime)->format('Y-m-d H:i') }} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Pickup Location: {{$booking->location}} </p>
-                                                            <p class="block text-gray-700 text-base font-light">Date: {{ \Carbon\Carbon::parse($booking->dropoffDateTime)->format('Y-m-d H:i') }} </p>
-                                                        </div>
-                                                       
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-center">
-                                        <a href="#" class="text-red-600 font-medium close-modal" data-modal-id="{{ $booking->id }}">Close</a>
-                                    </div>
-                                </div>
-                            </div>
-                        <div>
                         <!-- RENT IN PROCESS -->
+                        <div>      
                             <div id="track_{{ $booking->id }}" class="hidden top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-80">
                                 <div class="bg-white p-6 rounded-lg shadow-lg">
                                     <div class="flex flex-col justify-center text-center gap-4">
@@ -242,23 +132,35 @@
                                         <div id="req{{ $booking->id }}" class=" hidden flex gap-2 p-4 mb-4 car-section">
                                             Rent requirements not fulfilled
                                         </div>
+                                        @if($booking->tracking == "On")
+                                        <form method="POST" action="{{ route('stop-rental', $booking->id) }}">
+                                        @csrf
+                                            <button type="submit" class="p-2 rounded-md hover:bg-yellow-200 bg-yellow-300 text-yellow-600 font-medium stop-rental">Pause Rental</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('finish-rental', $booking->id) }}">
+                                        @csrf
+                                            <button type="submit" class="p-2 rounded-md hover:bg-red-500 bg-red-600 text-white font-medium">Finish Rental</button>
+                                        </form>
+                                        @endif
                                         <a href="#" class="text-red-600 font-medium close-track" data-track-id="{{ $booking->id }}">Close</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>    
-                        <!-- RENT REQUIREMENTS -->
-                        <div id="track-req{{ $booking->id }}" class="hidden top-0 left-0 w-full h-full flex items-center justify-center bg-gray-500 bg-opacity-80">
-                            <div class="bg-white p-6 rounded-lg shadow-lg">
-                                <div class="flex flex-col justify-center text-center gap-4">
-                                    <div class="rounded-lg shadow-xl bg-gray-200 p-5">
-                                        <div class="flex gap-2 p-4 bg-white border border-gray-400 rounded-lg group-hover:bg-gray-200 shadow-xl duration-300 mb-4 car-section">
-                                            Rent requirements not fulfilled
-                                        </div>
-                                    </div>
-                                <a href="#" class="text-red-600 font-medium close-track" data-track-id="{{ $booking->id }}">Close</a>
+                        </div>
+                        <!-- REVIEW -->
+                        <div>
+                        <form method="POST" action="{{ route('booking.review', ['booking' => ':bookingId']) }}" id="reviewForm" style="display: none;">
+                            @csrf
+                            @method('PUT')
+                            <div id="reviewModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                                <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+                                    <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                                    <h2>Write a Review</h2>
+                                    <textarea name="review" id="reviewTextArea" rows="4" cols="50" placeholder="Write your review here..." style="width: 100%;"></textarea>
+                                    <button type="submit" style="background-color: #FF0000; color: white; padding: 14px 20px; margin: 8px 0; border: none; cursor: pointer; width: 100%;">Submit</button>
                                 </div>
                             </div>
+                        </form>
                         </div>
                 </tbody>
             @endforeach
@@ -278,35 +180,56 @@
         }
     }
 
+// REVIEW
 
 
-    // Modal Buttons
-    const showButtons = document.querySelectorAll('.show-modal');
-    showButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const modalId = button.getAttribute('data-modal-id');
-            const modal = document.getElementById('modal_' + modalId);
+document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('reviewModal');
+        var openButtons = document.querySelectorAll('.openModalButton');
+        var form = document.getElementById('reviewForm');
 
-            // Display the modal for the clicked row
-            modal.classList.remove('hidden');
-            modal.classList.add('fixed');
+        // Loop through all buttons and attach event listeners
+        openButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var bookingId = this.getAttribute('data-booking-id');
+                var action = "{{ route('booking.review', ['booking' => ':bookingId']) }}".replace(':bookingId', bookingId);
+                form.setAttribute('action', action);
+                modal.style.display = 'block';
+            });
         });
+
+        // Get the <span> element that closes the modal
+        var span = document.querySelector('.close');
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
     });
 
-    // Implement close functionality for each modal
-    const closeModalButtons = document.querySelectorAll('.close-modal');
-    closeModalButtons.forEach(closeButton => {
-        closeButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const modalId = closeButton.getAttribute('data-modal-id');
-            const modal = document.getElementById('modal_' + modalId);
 
-            // Close the modal
-            modal.classList.add('hidden');
-            modal.classList.remove('fixed');
-        });
-    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Function to check if geolocation tracking should start
@@ -325,6 +248,13 @@
 
         console.log("Your coordinate is: Lat: " + lat + " Long: " + long + " Accuracy: " + accuracy);
 
+        var tracking = document.querySelector('.show-track').getAttribute('data-tracking');
+
+        if (tracking === 'On') {
+            console.log('Tracking is already On. Form submission is prevented.');
+            return; // Exit the function without submitting the form
+        }
+
          // Set the latitude and longitude in the hidden input fields
         document.getElementById('latitudeInput'+trackId).value = lat;
         document.getElementById('longitudeInput'+trackId).value = long;
@@ -339,7 +269,7 @@
     function startTracking() {
         trackingInterval = setInterval(() => {
             navigator.geolocation.getCurrentPosition(getPosition);
-        }, 5000); // Update the position every 5 seconds
+        }, 30000); // Update the position every 30 seconds
     }
 
     function updatePosition(position) {
@@ -361,8 +291,8 @@
             trackButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 trackId = trackButton.getAttribute('data-track-id');
-                const pickupDate = new Date(trackButton.getAttribute('data-pickup-date'));
-                const dropoffDate = new Date(trackButton.getAttribute('data-dropoff-date'));
+                const pickupDate = new Date(`${trackButton.getAttribute('data-pickup-date')}T${trackButton.getAttribute('data-pickup-time')}`);
+                const dropoffDate = new Date(`${trackButton.getAttribute('data-dropoff-date')}T${trackButton.getAttribute('data-dropoff-time')}`);
                 const status = trackButton.getAttribute('data-status');
                 const latitude = trackButton.getAttribute('latitude-value');
                 const longitude = trackButton.getAttribute('longitude-value');
@@ -393,6 +323,7 @@
                             startTracking();
                         }
                     }   
+                    console.log('LEPAS');
 
                     const closeTrackButtons = document.querySelectorAll('.close-track');
                     closeTrackButtons.forEach(closeTrackButton => {
@@ -410,7 +341,7 @@
                     trackModal.classList.remove('hidden');
                     trackModal.classList.add('fixed');
                     req.classList.remove('hidden');
-
+                    console.log('TAK LEPAS');
                     const closeTrackButtons = document.querySelectorAll('.close-track');
                     closeTrackButtons.forEach(closeTrackButton => {
                         closeTrackButton.addEventListener('click', (e) => {

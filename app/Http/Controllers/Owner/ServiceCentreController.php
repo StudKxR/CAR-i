@@ -57,7 +57,7 @@ class ServiceCentreController extends Controller
 
 
         // Redirect back or display a thank you message
-        return redirect()->route('thankyou')->with('success', 'Form submitted successfully!');
+        return redirect()->route('thankyou');
     }
 
     public function showMileageForm($maintenance_id)
@@ -81,7 +81,7 @@ class ServiceCentreController extends Controller
             'contact' => 'required',
             'location' => 'required',
         ]);
-        
+
         Service::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -89,7 +89,7 @@ class ServiceCentreController extends Controller
             'location' => $request->location,
             'user_id' => auth()->user()->id,
         ]);
-
+        notify()->success('Successfully add a service center','New service center!'); 
         return redirect()->route('maintenance.index')->with('success', 'Service centre added!');
     }
 
@@ -124,7 +124,24 @@ class ServiceCentreController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'contact' => 'required',
+            'location' => 'required',
+        ]);
+
+        $service = Service::findOrFail($id);
+
+        $service->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->contact,
+            'location' => $request->location,
+        ]);
+
+        notify()->success('Successfully update service center','Updated service center!'); 
+        return redirect()->route('maintenance.index');
     }
 
     /**
@@ -135,6 +152,9 @@ class ServiceCentreController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $service = Service::findOrFail($id);
+        $service->delete();
+
+        return redirect()->route('maintenance.index')->with('success', 'Service centre deleted!');
     }
 }

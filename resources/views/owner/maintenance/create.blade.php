@@ -43,16 +43,10 @@
                         </select>
                     </div>
                 </div>
-                <div class="sm:col-span-1">
+                <div class="sm:col-span-2">
                     <label for="issued" class="block text-xl font-medium leading-6 text-gray-900">Issued By</label>
                     <div class="mt-2">
                         <x-input readonly id="issued" class="block py-1.5 pl-1 flex-1 text-gray-900 mt-1 w-full sm:text-sm sm:leading-6" type="text" name="issued" value="{{auth()->user()->name}}" /> 
-                    </div>
-                </div>
-                <div class="sm:col-span-1">
-                    <label for="date" class="block text-xl font-medium leading-6 text-gray-900">Issue Date</label>
-                    <div class="mt-2">                       
-                        <x-input readonly id="date" class="block py-1.5 pl-1 flex-1 text-gray-900 mt-1 w-full sm:text-sm sm:leading-6" type="text" name="date" value="{{ date('Y-m-d') }}" /> 
                     </div>
                 </div>
             </div>

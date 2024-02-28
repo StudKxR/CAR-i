@@ -45,7 +45,6 @@
 <!-- FORM -->
 <form method="POST" action="{{ route('package.store', $car->id) }}" id="myForm" enctype="multipart/form-data">
     @csrf 
-    @method('PUT')
     <div class="rounded-lg space-y-4 p-2 rounded-lg shadow-sm sm:rounded-lg p-5 bg-white">
         <div id="addTab" class="tab-content">
             <div class="border-b border-gray-900/10 pb-4"> 

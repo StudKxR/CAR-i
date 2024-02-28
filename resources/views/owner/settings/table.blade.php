@@ -62,10 +62,12 @@
         if (telegramScriptContainer.classList.contains('hidden')) {
             telegramScriptContainer.classList.remove('hidden');
             allowEditButton.textContent = 'Disable edit';
+            allowEditButton.style.color = 'white';  
             document.getElementById('addNewBtn').style.backgroundColor = '#FE0000';
         } else {
             telegramScriptContainer.classList.add('hidden');
             allowEditButton.textContent = 'Allow edit';
+            allowEditButton.style.color = 'black';  
             document.getElementById('addNewBtn').style.backgroundColor = 'white';
         }
     }

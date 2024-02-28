@@ -116,6 +116,10 @@ class PackageController extends Controller
                 $addOn->save();
            
         }        
+        $car = RentalCar::findOrFail($carId);
+
+        // Update the status of the car to "Available"
+        $car->update(['status' => 'Available']);
     
         // Redirect back or wherever you want after saving
         notify()->success('Finished!');
@@ -172,8 +176,6 @@ class PackageController extends Controller
                 'add_price' => $request->PackPrice,
                 // Add other fields as needed
             ]);
-
-
         }else {
         
             $addOn = AddOns::findOrFail($id);

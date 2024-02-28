@@ -24,7 +24,7 @@
                 <!-- Dropdown Content -->
                 <div class="absolute hidden bg-white border rounded-lg shadow-sm mt-2 right-5"id="dropdownContent">
                     <button class="w-full block px-4 py-2 text-base font-light hover:bg-gray-200 transition duration-300 ease-in-out" onclick="updateRouteAndToggleTab('carTab', 'Rental Cars')">Rental Cars</button>
-                    <button class="w-full block px-4 py-2 text-base font-light hover:bg-gray-200 transition duration-300 ease-in-out" onclick="updateRouteAndToggleTab('addOnsTab', 'Add Ons & Packages')">Add Ons & Packages</button>
+                    <button class="w-full block px-4 py-2 text-base font-light hover:bg-gray-200 transition duration-300 ease-in-out" onclick="updateRouteAndToggleTab('addOnsTab', 'Extras')">Extras</button>
                 </div>
             </div>
         </div>
@@ -58,6 +58,7 @@
                                 <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800 text-left">Car category</th>
                                 <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800 text-left">Mode</th>
                                 <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800 text-left">Status</th>
+                                <th class="border-b font-bold p-4 pt-0 pb-3 text-slate-800 text-left">Packages</th>
                                 <th class="border-b font-bold p-4 pr-8 pt-0 pb-3 text-slate-800 ">Action</th>
                             </tr>
                         </thead>
@@ -75,9 +76,17 @@
                                         <span class="font-bold text-green-600 rounded-lg">{{$car->status}}</span>
                                     @else
                                         <span class="font-bold rounded-lg">{{$car->status}}</span>
-                                    @endif</td>
+                                    @endif
+                                </td>
+                                <td class="p-4">
+                                    @if($car->packages->isNotEmpty())
+                                        Yes
+                                    @else
+                                        None
+                                    @endif
+                                </td>
                                 <td class="p-4 pr-8">
-                                    <form action="{{ route('car.destroy',$car->id) }}" method="POST">
+                                    
                                         <div class="flex justify-around items-center space-x-2">
                                             <a class="bg-sky-300 text-blue-600 font-medium rounded-md p-1 hover:bg-sky-200"
                                                 href="{{ route('car.show',$car->id) }}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -90,15 +99,17 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                                 </svg>
                                             </a>
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                                </svg></button>
+                                            <form id="deleteForm" action="{{  route('car.destroy',$car->id)}}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="bg-red-300 text-red-600 font-medium rounded-md p-1 hover:bg-red-200 m-auto block" onclick="confirmDelete()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         </div>
-                                    </form>
+                                    
                                 </td>
                             </tr>
                         </tbody>
@@ -193,7 +204,13 @@
     }
 
 
-
+    function confirmDelete() {
+        // Show the confirmation dialog
+        if (confirm('Are you sure you want to delete this car?')) {
+            // If confirmed, submit the form
+            document.getElementById('deleteForm').submit();
+        }
+    }
 
 
 

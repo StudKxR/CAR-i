@@ -33,19 +33,25 @@ class TelegramController extends Controller
         return back();
     }
 
-    public function send( $message ){
-         // Get the authenticated user
-        $user = auth()->user();
-
-        // Check if the user is authenticated and has a Telegram chat ID
-        if ($user && $user->telegram_chat_id) {
-            $chatId = $user->telegram_chat_id;
-
-            // Use the obtained $chatId to send a message
-            return $this->sendMessage($chatId, $message, '6637636549:AAEdg7sJmPXW07rTmWpxW6qWoc1EzzEvIvc');
-        } else {
-            // Handle the case where the user is not authenticated or doesn't have a Telegram chat ID
-            return response()->json(['error' => 'User not authenticated or no Telegram chat ID']);
+    public function send($chat_id = null , $message){
+        if ($chat_id) {
+            // Use the provided $chat_id to send a message
+            return $this->sendMessage($chat_id, $message, '6637636549:AAEdg7sJmPXW07rTmWpxW6qWoc1EzzEvIvc');
+        } 
+        else {
+            // Get the authenticated user
+            $user = auth()->user();
+    
+            // Check if the user is authenticated and has a Telegram chat ID
+            if ($user && $user->telegram_chat_id) {
+                $chatId = $user->telegram_chat_id;
+    
+                // Use the obtained $chatId to send a message
+                return $this->sendMessage($chatId, $message, '6637636549:AAEdg7sJmPXW07rTmWpxW6qWoc1EzzEvIvc');
+            } else {
+                // Handle the case where the user is not authenticated or doesn't have a Telegram chat ID
+                return response()->json(['error' => 'User not authenticated or no Telegram chat ID']);
+            }
         }
     }
 

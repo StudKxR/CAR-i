@@ -3,31 +3,31 @@
 @section('content')
 
 <div class="my-4">
-    <form action="{{ route('car2.search') }}" method="GET" class=" p-4 rounded-lg">
+    <form action="{{ route('car2.search') }}" method="GET" class="p-4 rounded-lg" id="searchForm">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="col-span-2">
-                <label for="location" class="block text-gray-700 text-sm font-bold">Pickup Location</span></label>
-                    <input type="text" id="location" name="location" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" required list="locationSuggestions" placeholder="Enter any location">
-                    <datalist id="locationSuggestions"></datalist>
+                <label for="location" class="block text-gray-700 text-sm font-bold">Pickup Location</label>
+                <input type="text" id="location" name="location" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" required list="locationSuggestions" placeholder="Enter any location">
+                <datalist id="locationSuggestions"></datalist>
             </div>       
-            <div>
-                <label for="pickup_datetime" class="block text-gray-700 text-sm font-bold">Pick-up Date & Time:</label>
+                
+            <div class="col-span-2 lg:col-span-1">
+                <label for="pickup_datetime" class="block text-gray-700 text-sm font-bold truncate">Pick-up Date & Time:</label>
                 <input type="datetime-local" name="pickup_datetime" id="pickup_datetime" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" required>
             </div>
-            <div>
-                <label for="dropoff_datetime" class="block text-gray-700 text-sm font-bold">Drop-off Date & Time:</label>
+            <div class="col-span-2 lg:col-span-1">
+                <label for="dropoff_datetime" class="block text-gray-700 text-sm font-bold truncate">Drop-off Date & Time:</label>
                 <input type="datetime-local" name="dropoff_datetime" id="dropoff_datetime" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" required>
             </div>
         </div>
 
         <div class="mt-5 flex flex-col md:flex-row md:justify-between md:items-center">
             <a href="{{ route('booking.index') }}" class="text-slate-800 hover:text-[#FE0000] hover:underline font-bold duration-300 md:mb-0 mb-4">Your Bookings: {{ $bookingCount }}</a>
-            <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">
-                Search
-            </button>
+            <button type="button" id="searchButton" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300">Search</button>
         </div>
     </form>
+
 </div>
 <p class="text-2xl font-bold">What CAR-i brings to the table</p>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4 justify-center pt-6">
@@ -39,7 +39,7 @@
         </div>
         <div class="flex flex-col col-span-2 h-full">
             <p class="text-xl font-bold">Flexible rentals</p>
-            <p class="text-slate-800 text-base mb-4">Cancel or change most bookings for free up to 48 hours before pick-up</p>
+            <p class="text-slate-800 text-base mb-4">Cancel or change most bookings to 48 hours before pick-up</p>
         </div>
     </div>
     <div class="grid grid-cols-3 items-center p-4 max-w-sm h-full w-full border rounded-lg">
@@ -98,8 +98,56 @@
 
 
 
+    document.getElementById('searchButton').addEventListener('click', function(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        // Get the address entered by the user
+        var address = document.getElementById('location').value;
+
+        console.log(address);
+        // Geocode the address
+        geocodeAddress(address);
+    });
+
+
+    function geocodeAddress(address) {
+        var accessToken = 'pk.eyJ1IjoiYWZpZm5hcWliIiwiYSI6ImNsc2c4cDNsODFtbXAyaW1ob3A4Z3pkcDgifQ.0l3UzsJXTDunmkFePL8PKA';
+        var apiUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(address) + '.json?access_token=' + accessToken;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Extract latitude and longitude from the response
+                var latitude = data.features[0].center[1];
+                var longitude = data.features[0].center[0];
+
+                // Include latitude and longitude as hidden inputs in the form
+                document.getElementById('searchForm').insertAdjacentHTML('beforeend', '<input type="hidden" name="latitude" value="' + latitude + '">');
+                document.getElementById('searchForm').insertAdjacentHTML('beforeend', '<input type="hidden" name="longitude" value="' + longitude + '">');
+
+                // Submit the form with geocoded location information
+                document.getElementById('searchForm').submit();
+            })
+            .catch(error => {
+                console.error("Error fetching geocoding data:", error);
+            });
+    }
+
+
     // TIME
 
+
+    document.getElementById('pickup_datetime').addEventListener('input', function() {
+        var pickupTime = new Date(document.getElementById('pickup_datetime').value).getTime();
+        var currentTime = new Date().getTime();
+        var minTime = currentTime + (10 * 60 * 1000); // 30 minutes from now in milliseconds
+
+        if (pickupTime < minTime ) {
+            alert('Please select pickup time at least 10 minutes from the current time.');
+            document.getElementById('pickup_datetime').value = '';
+        }
+    });
 
     // Add an event listener to the drop-off datetime input
     document.getElementById('dropoff_datetime').addEventListener('input', function() {

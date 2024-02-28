@@ -10,11 +10,11 @@ class Package extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'rental_car_id',
+        'car_id',
         'fuel_description',
         'mileage_policy',
-        // 'payment_option',
         'included_protection',
+        'add_price',
         'cancellation_policy',
     ];
 

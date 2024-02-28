@@ -36,6 +36,16 @@ class BookingController extends Controller
     //     return view('customer.court.show',compact('courts'));
     // }
 
+    public function stopTracking(Request $request, Booking $booking)
+    {
+        // Update the tracking status to 'Off'
+        $booking->tracking = 'Done';
+        $booking->save();
+
+        notify()->warning('Tracking has been stopped!');
+        return back();
+    }
+
     public function create()
     {
 
@@ -79,7 +89,36 @@ class BookingController extends Controller
         $book = Booking::find($booking);
         $book->status = 'Approved';
         $book->save();
+        if ($book->status == 'Approved') {
+            // Check if the message has been sent before
+            // Send the message only if the location has changed and the message hasn't been sent before
+            $cust = User::find($book->user_id);
+            $custTelegramChatId = $cust->telegram_chat_id;
 
+            
+            $message = new TelegramController;
+            $message = "Booking Payment Made!!!\n\n" .
+                "Booking name: " . $booking->first_name . " " . $booking->last_name . "\n".
+                "Phone Number: " . $booking->phone . "\n\n" .
+                "################################\n\n" .
+                "Pickup Date: " . $booking->pickup_date . "\n" .
+                "Pickup Time: " . $booking->pickup_time . "\n\n" .
+                "################################\n\n" .
+                "Dropoff Date: " . $booking->dropoff_date . "\n" .
+                "Dropoff Time: " . $booking->dropoff_time . "\n\n" .
+                "################################\n\n" .
+                "NOTICE!  \n" .
+                "Customer needs to allow location for smoother rental experience. To start rental customer needs to click on the green button. \n" .
+                "Thank you for using CAR-i";
+
+
+            $messageController = new TelegramController;
+            $messageController->send($custTelegramChatId,$message, 'HTML');
+
+         
+        }
+
+        notify()->success('Rental has been approved!');
         return redirect()->back()->with('message','Status Apporved');
     }
 

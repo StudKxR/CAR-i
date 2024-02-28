@@ -25,8 +25,6 @@ return new class extends Migration
             $table->string('mode');
 
             $table->integer('seats');
-            $table->string('pickup')->nullable();
-
             $table->string('aircond')->nullable();
             $table->integer('luggage')->nullable();
 
@@ -35,6 +33,10 @@ return new class extends Migration
 
             $table->integer('mileage')->nullable();
             $table->date('last_maintenance')->nullable();
+            
+            $table->string('pickup')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
 
             $table->string('images')->nullable();
             $table->timestamps();

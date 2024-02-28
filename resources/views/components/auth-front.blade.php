@@ -43,9 +43,9 @@
     <!-- Up Column -->
     <div class="bg-white h-3/5 px-10 flex items-center justify-between">
         <div class="w-2/3 flex flex-col justify-start gap-10">
-            <p class="text-6xl sm:text-l text-gray font-bold">Experience <span class="text-[#FE0000]">CAR-i</span></p>
-            <p class="italic text-xl sm:text-sm text-gray-700 ">Tracking Excellence, Driving Confidence!</p>
-            <div class="inline-flex items-center gap-4">          
+            <p class="text-4xl md:text-6xl text-gray font-bold">Experience <span class="text-[#FE0000]">CAR-i</span></p>
+            <p class="italic text-sm md:text-lg text-gray-700 ">Tracking Excellence, Driving Confidence!</p>
+            <div class="inline-flex flex flex-col md:flex-row items-start md:items-center gap-4">          
                 <a href="{{ route('login') }}" class="inline-flex items-center text-sm text-[#FE0000] font-light border border-[#FE0000] rounded-full p-2">
                 <span>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-2 text-gray">
@@ -59,8 +59,8 @@
                 </a>
             </div>
          </div>
-        <div class="1/3">
-            <div class="bg-cover bg-center" style="background-image: url('{{ asset('storage/images/front_page.png') }}'); height: 300px; width: 400px;"></div>
+        <div class="sm:w-1/3 mt-0 md:mt-6">
+            <div class="bg-contain bg-no-repeat bg-center" style="background-image: url('{{ asset('storage/images/front_page.png') }}'); height: 300px;"></div>
         </div>
     </div>
 

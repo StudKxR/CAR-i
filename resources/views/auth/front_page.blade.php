@@ -11,19 +11,11 @@
                 </p>
             </div>
         </x-slot>
-        <div class="w-screen flex justify-around ">
-            <div class="rounded-lg border shadow-lg max-w-xl h-full w-full">
+        <div class="w-full flex sm:gap-4 sm:px-4">
+            <div class="rounded-lg shadow-lg h-full w-full flex justify-center">
                 <div class="p-4 bg-white rounded-lg group-hover:bg-gray-200 duration-300">
-                    <h5 class="text-[#FE0000] text-xl mb-2">What?</h5>
-                    <p class="text-gray-300 text-base mb-4"></p>
-                    <p class="text-slate-800 text-base mb-4"></p>
-                </div>
-            </div>
-            <div class="rounded-lg border shadow-lg max-w-xl h-full w-full">
-                <div class="p-4 bg-white rounded-lg group-hover:bg-gray-200 duration-300">
-                    <h5 class="text-[#FE0000] text-xl mb-2">Why?</h5>
-                    <p class="text-gray-300 text-base mb-4"></p>
-                    <p class="text-slate-800 text-base mb-4"></p>
+                    <h5 class="text-[#FE0000] text-xl mb-2">Created with</h5>
+                    <p class="text-slate-500 text-base mb-4">This project is created with PHP, Laravel, Tailwinds, and Bootstrap</p>
                 </div>
             </div>
         </div>

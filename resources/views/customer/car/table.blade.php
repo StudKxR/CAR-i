@@ -5,11 +5,11 @@
         <label for="pickup" class="block text-gray-700 text-sm font-bold">Pickup Location</label>
         <input readonly value="{{$pickupLocation}}" type="text" id="pickup" name="pickup" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" >
     </div>       
-    <div>
+    <div class="col-span-2 lg:col-span-1">
         <label for="pickup_datetime" class="block text-gray-700 text-sm font-bold">Pick-up Date & Time:</label>
         <input readonly value="{{ \Carbon\Carbon::parse($pickupDateTime)->format('Y-m-d H:i') }}" type="datetime-local" name="pickup_datetime" id="pickup_datetime" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3">
     </div>
-    <div>
+    <div class="col-span-2 lg:col-span-1">
         <label for="dropoff_datetime" class="block text-gray-700 text-sm font-bold">Drop-off Date & Time:</label>
         <input readonly value="{{ \Carbon\Carbon::parse($dropoffDateTime)->format('Y-m-d H:i') }}" type="datetime-local" name="dropoff_datetime" id="dropoff_datetime" class="form-input bg-slate-100 border border-none rounded-md w-full py-2 px-3" >
     </div>
@@ -19,7 +19,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-between">
 
     <!-- FILTER -->
-    <div class="col-span-2 md:col-span-1 border border-slate-200 rounded-lg p-4"style="height: fit-content;">
+    <div class="col-span-2 md:col-span-1 border border-slate-200 rounded-lg p-4 md:sticky md:top-0"style="height: fit-content;">
         <div class="flex justify-between items-center">
             <div class="text-lg font-semibold">
                 Filter
@@ -114,8 +114,8 @@
 
     <!-- DISPLAY -->
     <div class="col-span-2 bg-slate-100 rounded-lg p-4">
-    @if(!$availableCars->isEmpty())
-        @foreach($availableCars as $car)
+    @if(!empty($nearbyCars))
+        @foreach($nearbyCars as $car)
             <div class="p-4 bg-white rounded-lg group-hover:bg-gray-200 shadow-xl duration-300 mb-4 car-section" 
             data-car-category="{{$car->category}}" data-car-mode="{{$car->mode}}" data-car-seats="{{$car->seats}}" 
             data-car-aircond="{{$car->aircond}}" data-car-luggage="{{$car->luggage}}" data-car-price="{{$car->rental_price * $dayDifference }}">
@@ -183,7 +183,7 @@
                                     </svg>
                                 <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
                                     @if ($car->aircond === 'AC')
-                                        AirCond available
+                                        Air conditioning available
                                     @elseif ($car->aircond === 'Heater')
                                         Heater available
                                     @else
@@ -212,10 +212,10 @@
                                     </svg>
                                 
                                     <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
-                                        {{$pickupLocation}}
+                                        {{$car->pickup}}
                                     </div>
                                     <div class="truncate">
-                                        {{$pickupLocation}}
+                                        {{$car->pickup}}
                                     </div>
                                 </div>
                             </div>
@@ -226,7 +226,7 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <div class="py-2 flex sm:flex-col md:flex-row justify-between gap-2">
+                            <div class="py-2 flex flex-col  md:flex-row justify-between gap-2">
                                 <div>
                                     @if($car->packages->isNotEmpty())
                                         <div class="flex relative flex-col gap-2 group items-center">
@@ -234,10 +234,10 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                                 </svg>
-                                                <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
+                                                <div class="text-sm sm:text-base  hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
                                                     Fuel Description: {{$car->packages->first()->fuel_description}}
                                                 </div>
-                                                <div class="truncate w-40">
+                                                <div class="text-sm sm:text-base  truncate w-40">
                                                     {{$car->packages->first()->fuel_description}}
                                                 </div>
                                             </div>
@@ -247,10 +247,10 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                                 </svg>
-                                                <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
+                                                <div class="text-sm sm:text-base  hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
                                                     Mileage Policy: {{$car->packages->first()->mileage_policy}}
                                                 </div>
-                                                <div class="truncate w-40">
+                                                <div class="text-sm sm:text-base  truncate w-40">
                                                     {{$car->packages->first()->mileage_policy}}
                                                 </div>
                                             </div>
@@ -264,10 +264,10 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                                 </svg>
-                                                <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
+                                                <div class="text-sm sm:text-base  hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
                                                     Included Protection: {{$car->packages->first()->included_protection}}
                                                 </div>
-                                                <div class="truncate w-40">
+                                                <div class="text-sm sm:text-base  truncate w-40">
                                                     {{$car->packages->first()->included_protection}}
                                                 </div>
                                             </div>
@@ -277,10 +277,10 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                                                 </svg>
-                                                <div class="hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
+                                                <div class="text-sm sm:text-base hidden group-hover:block absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded whitespace-nowrap">
                                                     Cancellation Policy: {{$car->packages->first()->cancellation_policy}}
                                                 </div>
-                                                <div class="truncate w-40">
+                                                <div class="text-sm sm:text-base truncate w-40">
                                                     {{$car->packages->first()->cancellation_policy}}
                                                 </div>
                                             </div>
@@ -294,7 +294,7 @@
                     </div>
                     <div class="flex flex-col justify-between border-l py-2">
                         <div class="flex justify-center">
-                            <div class="flex flex-col">
+                            <div class="flex flex-col p-2">
                                 <p>Total</p>
                                 <p id="totalPrice" class="text-2xl font-bold">RM {{ $car->rental_price * $dayDifference }}</p>
                                 <p>For {{$dayDifference}} day(s)</p>
@@ -302,7 +302,7 @@
                         </div>
                         <div class="flex justify-center w-full drop-shadow-xl">
                             <a href="{{ route('booking.display', ['car' => $car->id, 'pickupDateTime' => $pickupDateTime , 'dropoffDateTime' => $dropoffDateTime, 'pickupLocation' => $pickupLocation, 'dayDifference'=> $dayDifference]) }}" 
-                             class="bg-red-600 hover:bg-red-500 p-2 px-4 text-white rounded-lg">View Deal</a>
+                             class="text-sm sm:text-base bg-red-600 hover:bg-red-500 p-1 sm:py-2 sm:px-4 text-white rounded-lg">View Deal</a>
                         </div>
                     </div>   
                 </div>
@@ -310,7 +310,7 @@
         @endforeach
     @else
     <div class="flex justify-center">
-        <p class="text-2xl font-bold">No cars available for the selected dates and location.</p>
+        <p class="text-2xl font-bold">No cars available for the selected location and dates.</p>
     </div>
     @endif
     </div>
@@ -325,7 +325,7 @@
 
 
 <script>
-    const availableCars = @json($availableCars);
+    const nearbyCars = @json($nearbyCars);
     const categorySelect = document.getElementById('category-select');
     const transmissionSelect = document.getElementById('transmission-select');
     const seatsSelect = document.getElementById('seats-select');
@@ -335,7 +335,7 @@
 
     const cars = document.querySelectorAll('.car-section');
     const carCountElement = document.getElementById('car-count');
-    const allCarsCount = availableCars.length;
+    const allCarsCount = nearbyCars.length;
     const clearFilterButton = document.getElementById('clear-filter-button');
     const carCountText = ' cars available';
 

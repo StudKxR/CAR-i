@@ -43,6 +43,10 @@
                                     <span class="font-bold text-yellow-400 rounded-lg">{{$booking->status}}</span>
                                 @elseif ($booking->status == 'Approved')
                                     <span class="font-bold text-green-600 rounded-lg">{{$booking->status}}</span>
+                                @elseif ($booking->status == 'Payment made')
+                                    <span class="font-bold text-blue-600 rounded-lg">{{$booking->status}}</span>
+                                @elseif ($booking->status == 'Finished')
+                                    <span class="font-bold text-red-600 rounded-lg">{{$booking->status}}</span>
                                 @else
                                     <span class="font-bold  rounded-lg">{{$booking->status}}</span>
                                 @endif</td>
@@ -143,6 +147,8 @@
                                                                     <span class="font-bold  text-yellow-400 rounded-lg">{{$booking->status}}</span>
                                                                 @elseif ($booking->status == 'Approved')
                                                                     <span class="font-bold  text-green-600 rounded-lg">{{$booking->status}}</span>
+                                                                @elseif ($booking->status == 'Payment made')
+                                                                <span class="font-bold text-blue-600 rounded-lg">{{$booking->status}}</span>
                                                                 @else
                                                                     <span class="font-bold  rounded-lg">{{$booking->status}}</span>
                                                                 @endif
@@ -196,11 +202,11 @@
                                                                     @csrf
                                                                     @method('PUT')
                                                                     @if ($booking->status == 'Pending')
-                                                                    <button type="submit" class="group bg-green-500 rounded-md p-2 hover:bg-green-800"><span class="group-hover:text-white">Approve</button>
+                                                                    <button type="submit" class="font-base p-2 rounded-md shadow-md bg-green-300 text-green-600 hover:bg-green-400 hover:shadow-lg transition duration-300 ease-in-out"><span class="group-hover:text-white">Approve</button>
                                                                     @elseif ($booking->status == 'Approved')
-                                                                    <button type="submit" class="group bg-green-500 rounded-md p-2 hover:bg-green-800 hidden"><span class="group-hover:text-white">Approve</button>
+                                                                    <button type="submit" class="font-base p-2 rounded-md shadow-md bg-green-300 text-green-600 hover:bg-green-400 hover:shadow-lg transition duration-300 ease-in-out hidden"><span class="group-hover:text-white">Approve</button>
                                                                     @else
-                                                                    <button type="submit" class="group bg-green-500 rounded-md p-2 hover:bg-green-800"><span class="group-hover:text-white">Approve</button>
+                                                                    <button type="submit" class="font-base p-2 rounded-md shadow-md bg-green-300 text-green-600 hover:bg-green-400 hover:shadow-lg transition duration-300 ease-in-out"><span class="group-hover:text-white">Approve</button>
                                                                     @endif
                                                                 </form>
                                                             </div>

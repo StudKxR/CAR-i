@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use DateTime;
 use Carbon\Carbon;
+use App\Services\GeocodingService;
 
 class CarController extends Controller
 {
@@ -85,13 +86,16 @@ class CarController extends Controller
         $dropoffDateTime = $request->input('dropoff_datetime');
         $pickupLocation = $request->input('location');
 
+
+
+
         // Parse input strings into Carbon objects
         $pickupDateTimeObject = Carbon::parse($pickupDateTime);
         $dropoffDateTimeObject = Carbon::parse($dropoffDateTime);
 
         // Calculate the day difference
         $dayDifference = $pickupDateTimeObject->diffInDays($dropoffDateTimeObject);
-        if ($dropoffDateTimeObject->format('H:i') > $pickupDateTimeObject->format('H:i')) {
+        if ($dropoffDateTimeObject->gt($pickupDateTimeObject) || ($dropoffDateTimeObject->eq($pickupDateTimeObject) && $dropoffDateTimeObject->gt($pickupDateTimeObject))) {
             $dayDifference += 1;
         }
 
@@ -102,29 +106,68 @@ class CarController extends Controller
         $dropoffDate = $dropoffDateTimeObject->toDateString();
         $dropoffTime = $dropoffDateTimeObject->format('H:i');
 
-        // dd($pickupDate,$pickupTime,$dropoffDate,$dropoffTime);
         // Find available cars that don't have conflicting bookings
         $availableCars = RentalCar::where('status', 'Available')
-        ->where('pickup', $pickupLocation)
-        ->whereDoesntHave('bookings', function ($query) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime, $pickupLocation) {
-            $query->where(function ($subQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime, $pickupLocation) {
+        ->whereDoesntHave('bookings', function ($query) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime) {
+            $query->where(function ($subQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime) {
                 // Check for overlapping bookings
                 $subQuery->where('pickup_date', '<', $dropoffDate)
                     ->where('dropoff_date', '>', $pickupDate)
-                    ->orWhere(function ($innerSubQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime, $pickupLocation) {
+                    ->orWhere(function ($innerSubQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime) {
                         $innerSubQuery->where('pickup_date', '=', $pickupDate)
                             ->where('pickup_time', '<', $dropoffTime);
                     })
-                    ->orWhere(function ($innerSubQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime, $pickupLocation) {
+                    ->orWhere(function ($innerSubQuery) use ($pickupDate, $pickupTime, $dropoffDate, $dropoffTime) {
                         $innerSubQuery->where('dropoff_date', '=', $dropoffDate)
                             ->where('dropoff_time', '>', $pickupTime);
                     });
-            })->where('pickup', '=', $pickupLocation);
-        })->get();
+            });
+        })
+        ->get();
 
-        return view('customer.car.index', compact('availableCars', 'pickupDateTime', 'dropoffDateTime', 'bookings','pickupLocation', 'dayDifference'));
+        // Filter cars based on user location
+        $nearbyCars = [];
+        foreach ($availableCars as $car) {
+            // Access latitude and longitude directly from the car object
+            $carLatitude = $car->latitude;
+            $carLongitude = $car->longitude;
+
+             // Calculate distance between car and user location
+            $userLatitude = $request->input('latitude');
+            $userLongitude = $request->input('longitude');
+            
+            $earthRadius = 6371; // Earth's radius in kilometers
+
+            // Convert latitude and longitude from degrees to radians
+            $latFrom = deg2rad($userLatitude);
+            $lonFrom = deg2rad($userLongitude);
+            $latTo = deg2rad($carLatitude);
+            $lonTo = deg2rad($carLongitude);
+
+            // Calculate the change in coordinates
+            $latDelta = $latTo - $latFrom;
+            $lonDelta = $lonTo - $lonFrom;
+
+            // Haversine formula
+            $distance = 2 * $earthRadius * asin(
+                sqrt(
+                    pow(sin($latDelta / 2), 2) +
+                    cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)
+                )
+            );
+
+            // Consider a threshold distance (e.g., 10 kilometers) for nearby cars
+            if ($distance <= 10) {
+                $nearbyCars[] = $car;
+            }
+        }
+
+        return view('customer.car.index', compact('nearbyCars', 'pickupDateTime', 'dropoffDateTime', 'bookings','pickupLocation', 'dayDifference'));
     }
 
+
+    
+    
 
     public function getPriceRange()
     {

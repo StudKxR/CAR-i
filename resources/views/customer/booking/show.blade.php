@@ -104,19 +104,6 @@
                                 </span>
                             </a>
                         </p>
-
-                        @if($car->bookings->isEmpty())
-                            <p>No reviews yet.</p>
-                        @else
-                            <ul>
-                                @foreach($car->bookings as $booking)
-                                    @if($booking->review)
-                                        <li>{{ $booking->review }}</li>
-                                        @break
-                                    @endif
-                                @endforeach
-                            </ul>
-                        @endif
                     </div>
                 </div>
             </div><hr>
@@ -215,7 +202,7 @@
                     <ul>
                         @foreach($car->bookings as $booking)
                             @if($booking->review)
-                                <li>{{ $booking->review }}</li>
+                                <li><span class="text-red-500">*</span> {{ $booking->review }}</li>
                             @endif
                         @endforeach
                     </ul>

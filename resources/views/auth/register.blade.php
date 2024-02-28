@@ -46,9 +46,9 @@
             </div>
 
             <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-[#FE0000] hover:text-gray-600 pr-4" href="javascript:history.back()">
+                <!-- <a class="underline text-sm text-[#FE0000] hover:text-gray-600 pr-4" href="javascript:history.back()">
                     {{ __('Go Back') }}
-                </a>
+                </a> -->
                 <a class="underline text-sm text-[#FE0000] hover:text-gray-600" href="javascript:history.back()" >
                     {{ __('Already registered?') }}
                 </a>
