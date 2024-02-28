@@ -124,6 +124,7 @@
                             <p class="text-xl font-semibold py-2">Pick-up & Drop-off</p>
                         </div>
 
+                        <!-- TEST 28/2/2024 -->
                         <div class="flex justify-between bg-slate-100 border border-none rounded-md w-full py-2 px-3 ">
                             <div>
                                 <p class="block text-gray-700 text-base font-light">Pickup Location: {{$booking->location}} </p>
